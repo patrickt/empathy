@@ -1,11 +1,11 @@
-cabal-version:       2.0
+cabal-version:       2.4
 name:                empathy
 version:             0.1.0.0
 synopsis:            A modern library for typed path manipulation.
 description:         A modern library for typed path manipulation.
 homepage:            https://github.com/patrickt/empathy
 bug-reports:         https://github.com/patrickt/empathy/issues
-license:             OtherLicense
+license:             MIT
 author:              Patrick Thomson
 maintainer:          patrick.william.thomson@gmail.com
 copyright:           2019 Patrick Thomson
@@ -19,10 +19,7 @@ source-repository head
   type:                git
   location:            https://github.com/patrickt/empathy.git
 
-library
-  hs-source-dirs:      src
-  exposed-modules:     Data.Path.Types
-
+common shared
   build-depends:       base ^>= 4.12.0.0
 
 
@@ -37,6 +34,22 @@ library
                        -Wpartial-fields
 
   default-language:    Haskell2010
+
+library core
+  import:              shared
+  hs-source-dirs:      src
+  exposed-modules:     Data.Path.Types
+
+library posix
+  import:              shared
+  hs-source-dirs:      src
+  exposed-modules:     Data.Path.System.Posix
+
+library
+  import:              shared
+  hs-source-dirs:      src
+  exposed-modules:     Data.Path
+
 
 test-suite empathy-test
   type:                exitcode-stdio-1.0

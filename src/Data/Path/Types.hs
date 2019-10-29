@@ -5,20 +5,25 @@ module Data.Path.Types
     ( Path (..)
     , Relative (..)
     , Entity (..)
-    , OS (..)
     , (</>)
     ) where
 
-data Relative = Abs | Rel | AbsRel
+data Relative = Abs | Rel
 
-data Entity = File | Dir | FileDir
+data Entity = File | Dir
 
-data OS = Posix | Windows
-
-data Path (os :: OS) (ar :: Relative) (fd :: Entity) where
-  Cwd   :: Path os 'Rel 'Dir
-  Root  :: Path os 'Abs 'Dir
-  Slash :: Path os ar 'Dir -> Path os 'Rel fd -> Path os ar fd
+data Path os (ar :: Relative) (fd :: Entity) where
+  Cwd ::
+    Path os 'Rel 'Dir
+  Root ::
+    Path os 'Abs 'Dir
+  Comp ::
+    String
+    -> Path os ar fd
+  Slash ::
+    Path os ar 'Dir
+    -> Path os 'Rel fd
+    -> Path os ar fd
 
 (</>) :: Path os ar 'Dir -> Path os 'Rel fd -> Path os ar fd
 (</>) = Slash
