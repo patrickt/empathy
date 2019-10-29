@@ -1,11 +1,10 @@
-{-# LANGUAGE DataKinds, GADTs, KindSignatures, RankNTypes, TypeOperators, UndecidableInstances #-}
+{-# LANGUAGE DataKinds, GADTs, KindSignatures, LambdaCase, RankNTypes, TypeOperators, UndecidableInstances #-}
 
 module Data.Path.Types
     ( Path (..)
     , Relative (..)
     , Entity (..)
-    , (</>)
-    , combine
+    , fold
     ) where
 
 import Data.String
@@ -28,17 +27,19 @@ data Path os (ar :: Relative) (fd :: Entity) where
     -> Path os 'Rel fd
     -> Path os ar fd
 
+fold :: f
+     -> f
+     -> (String -> f)
+     -> (f -> f -> f)
+     -> Path os ar fd
+     -> f
+fold cwd root comp combine = \case
+  Cwd         -> cwd
+  Root        -> root
+  Comp s      -> comp s
+  Combine a b -> combine (fold cwd root comp combine a) (fold cwd root comp combine b)
+
 instance TypeError ('Text "Path does not provide an IsString instance."
                     ':$$: 'Text "Use the 'rel' or 'abs' family of functions instead."
                    ) => IsString (Path os ar fd) where
   fromString = error "uninhabited"
-
--- | Join a directory (relative or absolute) with a relative component (file or directory).
-combine :: Path os ar 'Dir -> Path os 'Rel fd -> Path os ar fd
-combine = Combine
-{-# INLINE combine #-}
-
--- | Infix variant of 'combine'.
-(</>) :: Path os ar 'Dir -> Path os 'Rel fd -> Path os ar fd
-(</>) = combine
-{-# INLINE (</>) #-}
