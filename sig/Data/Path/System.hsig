@@ -1,0 +1,5 @@
+signature Data.Path.System
+  ( System
+  ) where
+
+data System

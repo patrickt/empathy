@@ -14,5 +14,5 @@ type System = Posix
 pathSeparator :: Char
 pathSeparator = '/'
 
-toString :: Path System os ar -> String
+toString :: Path Posix os ar -> String
 toString _ = "TODO"

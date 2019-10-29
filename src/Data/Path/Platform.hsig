@@ -1,8 +1,0 @@
-signature Data.Path.Platform where
-
-import Data.Path.Types
-
-type System
-
-pathSeparator :: Char
-toString :: Path System ar fd -> String

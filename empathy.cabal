@@ -20,9 +20,7 @@ source-repository head
   location:            https://github.com/patrickt/empathy.git
 
 common shared
-  build-depends:       base ^>= 4.12.0.0
-
-
+  default-language:    Haskell2010
   ghc-options:         -Wall
                        -Wincomplete-uni-patterns
                        -Wincomplete-record-updates
@@ -33,44 +31,52 @@ common shared
                        -Wmissing-export-lists
                        -Wpartial-fields
 
-  default-language:    Haskell2010
+  build-depends:       base ^>= 4.12.0.0
 
-library core
+
+library empathy-core
   import:              shared
-  hs-source-dirs:      src
+  hs-source-dirs:      core
   exposed-modules:     Data.Path.Types
 
-library posix
+library empathy-sig
   import:              shared
-  hs-source-dirs:      src
+  hs-source-dirs:      sig
+  exposed-modules:     Data.Path.Generic
+  signatures:          Data.Path.System
+  build-depends:       empathy-core
+
+library empathy-posix
+  import:              shared
+  hs-source-dirs:      posix
   exposed-modules:     Data.Path.System.Posix
+  build-depends:       empathy-core
+
+library empathy-win32
+  import:              shared
+  hs-source-dirs:      windows
+  exposed-modules:     Data.Path.System.Windows
+  build-depends:       empathy-core
 
 library
   import:              shared
   hs-source-dirs:      src
-  exposed-modules:     Data.Path
+  build-depends:       empathy-sig
+
+  if os(windows)
+    build-depends:     empathy-win32
+    mixins:            empathy-sig (Data.Path.Generic as Data.Path) requires (Data.Path.System as Data.Path.System.Windows)
+  else
+    build-depends:     empathy-posix
+    mixins:            empathy-sig (Data.Path.Generic as Data.Path) requires (Data.Path.System as Data.Path.System.Posix)
+
 
 
 test-suite empathy-test
+  import:              shared
   type:                exitcode-stdio-1.0
   hs-source-dirs:      test
   main-is:             Spec.hs
 
   build-depends:       base ^>= 4.12.0.0
-                     , empathy
 
-
-  ghc-options:         -Wall
-                       -threaded
-                       -rtsopts
-                       -with-rtsopts=-N
-                       -Wincomplete-uni-patterns
-                       -Wincomplete-record-updates
-                       -Wcompat
-                       -Widentities
-                       -Wredundant-constraints
-                       -fhide-source-paths
-                       -Wmissing-export-lists
-                       -Wpartial-fields
-
-  default-language:    Haskell2010
