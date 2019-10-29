@@ -24,9 +24,8 @@ import qualified Data.Path.Types as T
 
 type Path = T.Path System
 
--- TODO make this use ShowS or something geez
 toString :: Path ar fd -> String
-toString = T.fold (pure pathSeparator) mempty id (\a b -> a <> pure pathSeparator <> b)
+toString p = T.fold mempty (showChar pathSeparator) showString (\a b -> a <> showChar pathSeparator <> b) p ""
 
 currentDir :: Path 'Rel 'Dir
 currentDir = Cwd
