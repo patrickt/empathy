@@ -49,7 +49,6 @@ addExtension path ext =
     Comp s -> Comp (s <> ext')
     Combine xs as -> Combine xs (addExtension as ext)
 
-
 -- | Infix variant of 'addExtension'.
 (<.>) :: Path ar 'File -> String -> Path ar 'File
 (<.>) = addExtension

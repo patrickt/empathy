@@ -1,5 +1,8 @@
 signature Data.Path.System
   ( System
+  , pathSeparator
   ) where
 
 data System
+
+pathSeparator :: Char

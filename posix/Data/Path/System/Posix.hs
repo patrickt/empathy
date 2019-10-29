@@ -1,9 +1,6 @@
-{-# LANGUAGE DataKinds #-}
-
 module Data.Path.System.Posix
   ( System
   , pathSeparator
-  , toString
   ) where
 
 import Data.Path.Types
@@ -13,6 +10,3 @@ type System = Posix
 
 pathSeparator :: Char
 pathSeparator = '/'
-
-toString :: Path Posix os ar -> String
-toString _ = "TODO"
