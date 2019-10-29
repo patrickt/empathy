@@ -3,8 +3,6 @@ module Data.Path.System.Windows
   , pathSeparator
   ) where
 
-import Data.Path.Types
-
 data Windows
 type System = Windows
 
