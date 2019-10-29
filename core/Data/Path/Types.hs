@@ -6,6 +6,7 @@ module Data.Path.Types
     , Relative (..)
     , Entity (..)
     , (</>)
+    , combine
     ) where
 
 data Relative = Abs | Rel
@@ -20,10 +21,17 @@ data Path os (ar :: Relative) (fd :: Entity) where
   Comp ::
     String
     -> Path os ar fd
-  Slash ::
+  Combine ::
     Path os ar 'Dir
     -> Path os 'Rel fd
     -> Path os ar fd
 
+-- | Join a directory (relative or absolute) with a relative component (file or directory).
+combine :: Path os ar 'Dir -> Path os 'Rel fd -> Path os ar fd
+combine = Combine
+{-# INLINE combine #-}
+
+-- | Infix variant of 'combine'.
 (</>) :: Path os ar 'Dir -> Path os 'Rel fd -> Path os ar fd
-(</>) = Slash
+(</>) = combine
+{-# INLINE (</>) #-}
