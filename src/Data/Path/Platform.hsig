@@ -1,0 +1,7 @@
+signature Data.Path.Platform where
+
+import Data.Path.Types
+
+type System :: OS
+
+pathSeparator :: Char
