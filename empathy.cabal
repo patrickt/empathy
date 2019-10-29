@@ -31,7 +31,7 @@ common shared
                        -Wmissing-export-lists
                        -Wpartial-fields
 
-  build-depends:       base >= 4.12 && < 4.16
+  build-depends:       base >= 4.11 && < 4.16
 
 
 library empathy-core
@@ -77,5 +77,5 @@ test-suite empathy-test
   hs-source-dirs:      test
   main-is:             Spec.hs
 
-  build-depends:       base ^>= 4.12.0.0
+  build-depends:       base ^>= 4.11
 
