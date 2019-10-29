@@ -60,7 +60,6 @@ library empathy-win32
 
 library
   import:              shared
-  hs-source-dirs:      src
   build-depends:       empathy-sig
   reexported-modules:  Data.Path
   if os(windows)
