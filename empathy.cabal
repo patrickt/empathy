@@ -62,7 +62,7 @@ library
   import:              shared
   hs-source-dirs:      src
   build-depends:       empathy-sig
-
+  reexported-modules:  Data.Path
   if os(windows)
     build-depends:     empathy-win32
     mixins:            empathy-sig (Data.Path.Generic as Data.Path) requires (Data.Path.System as Data.Path.System.Windows)
