@@ -10,7 +10,7 @@ data Windows
 type System = Windows
 
 pathSeparator :: Char
-pathSeparator = '\'
+pathSeparator = '\\' -- smh
 
 toString :: Path Windows os ar -> String
 toString _ = "TODO"

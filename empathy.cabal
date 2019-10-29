@@ -1,8 +1,8 @@
 cabal-version:       2.4
 name:                empathy
 version:             0.1.0.0
-synopsis:            A modern library for typed path manipulation.
-description:         A modern library for typed path manipulation.
+synopsis:            typed paths, with feeling
+description:         empathy provides data types for filesystem path manipulation.
 homepage:            https://github.com/patrickt/empathy
 bug-reports:         https://github.com/patrickt/empathy/issues
 license:             MIT
