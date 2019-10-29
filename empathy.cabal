@@ -31,7 +31,7 @@ common shared
                        -Wmissing-export-lists
                        -Wpartial-fields
 
-  build-depends:       base ^>= 4.12.0.0
+  build-depends:       base >= 4.11 && < 4.16
 
 
 library empathy-core
@@ -60,9 +60,8 @@ library empathy-win32
 
 library
   import:              shared
-  hs-source-dirs:      src
   build-depends:       empathy-sig
-
+  reexported-modules:  Data.Path
   if os(windows)
     build-depends:     empathy-win32
     mixins:            empathy-sig (Data.Path.Generic as Data.Path) requires (Data.Path.System as Data.Path.System.Windows)
@@ -78,5 +77,5 @@ test-suite empathy-test
   hs-source-dirs:      test
   main-is:             Spec.hs
 
-  build-depends:       base ^>= 4.12.0.0
+  build-depends:       base ^>= 4.11
 
