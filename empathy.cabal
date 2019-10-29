@@ -1,0 +1,64 @@
+cabal-version:       2.0
+name:                empathy
+version:             0.0.0
+synopsis:            A modern library for typed path manipulation.
+description:         A modern library for typed path manipulation.
+homepage:            https://github.com/patrickt/empathy
+bug-reports:         https://github.com/patrickt/empathy/issues
+license:             AllRightsReserved
+author:              Patrick Thomson
+maintainer:          patrick.william.thomson@gmail.com
+copyright:           2019 Patrick Thomson
+category:            System
+build-type:          Simple
+extra-doc-files:     README.md
+                   , CHANGELOG.md
+tested-with:         GHC == 8.6.4
+
+source-repository head
+  type:                git
+  location:            https://github.com/patrickt/empathy.git
+
+library
+  hs-source-dirs:      src
+  exposed-modules:     Empathy
+                       
+
+  build-depends:       base ^>= 4.12.0.0
+                     
+
+  ghc-options:         -Wall
+                       -Wincomplete-uni-patterns
+                       -Wincomplete-record-updates
+                       -Wcompat
+                       -Widentities
+                       -Wredundant-constraints
+                       -fhide-source-paths
+                       -Wmissing-export-lists
+                       -Wpartial-fields
+
+  default-language:    Haskell2010
+
+test-suite empathy-test
+  type:                exitcode-stdio-1.0
+  hs-source-dirs:      test
+  main-is:             Spec.hs
+
+  build-depends:       base ^>= 4.12.0.0
+                     , empathy
+                     
+
+  ghc-options:         -Wall
+                       -threaded
+                       -rtsopts
+                       -with-rtsopts=-N
+                       -Wincomplete-uni-patterns
+                       -Wincomplete-record-updates
+                       -Wcompat
+                       -Widentities
+                       -Wredundant-constraints
+                       -fhide-source-paths
+                       -Wmissing-export-lists
+                       -Wpartial-fields
+
+  default-language:    Haskell2010
