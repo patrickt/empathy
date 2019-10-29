@@ -1,4 +1,4 @@
-{-# LANGUAGE DataKinds, GADTs, KindSignatures, LambdaCase, RankNTypes, TypeOperators, UndecidableInstances #-}
+{-# LANGUAGE DataKinds, DeriveGeneric, GADTs, KindSignatures, LambdaCase, RankNTypes, StandaloneDeriving, TypeOperators, UndecidableInstances #-}
 
 module Data.Path.Types
     ( Path (..)
@@ -7,12 +7,14 @@ module Data.Path.Types
     , fold
     ) where
 
+import Data.Hashable
 import Data.String
+import GHC.Generics
 import GHC.TypeLits
 
-data Relative = Abs | Rel
+data Relative = Abs | Rel deriving (Show, Eq)
 
-data Entity = File | Dir
+data Entity = File | Dir deriving (Show, Eq)
 
 data Path os (ar :: Relative) (fd :: Entity) where
   Cwd ::
@@ -26,6 +28,13 @@ data Path os (ar :: Relative) (fd :: Entity) where
     Path os ar 'Dir
     -> Path os 'Rel fd
     -> Path os ar fd
+
+deriving instance Show    (Path os ar fd)
+deriving instance Eq      (Path os ar fd)
+
+instance Hashable (Path os ar fd) where
+  hashWithSalt salt = fold (hashWithSalt salt '.') (hashWithSalt salt '/') (hashWithSalt salt) hashWithSalt
+
 
 fold :: f
      -> f
