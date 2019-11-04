@@ -34,6 +34,17 @@ import qualified Data.Path.Types as T
 
 type Path = T.Path System
 
+-- | The current directory. You can use this with '</>' to build relative paths.
+currentDir :: Path 'Rel 'Dir
+currentDir = Cwd
+
+-- | The root directory.
+rootDir :: Path 'Abs 'Dir
+rootDir = Root
+
+parse :: forall ar fd . String -> Maybe (Path ar fd)
+parse = undefined
+
 -- | Convert a 'Path' to a String, suitable for being passed as a @FilePath@ from @System.FilePath@.
 toString :: Path ar fd -> String
 toString p = T.fold mempty (showChar pathSeparator) showString (\a b -> a <> showChar pathSeparator <> b) p ""
@@ -71,12 +82,6 @@ choose onAF onRF onAD onRD p = case (arSing @ar, fdSing @fd) of
   (SRel, SFile) -> onRF p
   (SAbs, SDir)  -> onAD p
   (SRel, SDir)  -> onRD p
-
-currentDir :: Path 'Rel 'Dir
-currentDir = Cwd
-
-rootDir :: Path 'Abs 'Dir
-rootDir = Root
 
 -- | Join a directory (relative or absolute) with a relative component (file or directory).
 combine :: Path ar 'Dir -> Path 'Rel fd -> Path ar fd
