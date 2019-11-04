@@ -1,4 +1,4 @@
-{-# LANGUAGE DataKinds, DeriveGeneric, GADTs, KindSignatures, LambdaCase, RankNTypes, StandaloneDeriving, TypeOperators, UndecidableInstances #-}
+{-# LANGUAGE DataKinds, GADTs, KindSignatures, LambdaCase, RankNTypes, StandaloneDeriving, TypeOperators, UndecidableInstances #-}
 
 module Data.Path.Types
     ( Path (..)
@@ -9,7 +9,6 @@ module Data.Path.Types
 
 import Data.Hashable
 import Data.String
-import GHC.Generics
 import GHC.TypeLits
 
 data Relative = Abs | Rel deriving (Show, Eq)
