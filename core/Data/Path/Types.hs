@@ -17,30 +17,40 @@ import Data.Hashable
 import Data.String
 import GHC.TypeLits
 
+-- | Indicates whether a 'Path' is absolute or relative.
 data Anchor = Abs | Rel deriving (Show, Eq)
 
+-- | The singleton type for 'Anchor' kinds.
 data SAnchor (ar :: Anchor) where
   SAbs :: SAnchor 'Abs
   SRel :: SAnchor 'Rel
 
+-- | Type-level witness for whether a path is absolute or relative.
+-- You'll need this if you use any of the @choose@ family of functions.
 class AbsRel (ar :: Anchor) where
   arSing :: SAnchor ar
 
 instance AbsRel 'Abs where arSing = SAbs
 instance AbsRel 'Rel where arSing = SRel
 
+-- | Indicates whether a 'Path' refers to a file or directory.
 data Entity = File | Dir deriving (Show, Eq)
 
+-- | The singleton type for 'Entity' kinds.
 data SEntity (fd :: Entity) where
   SFile :: SEntity 'File
   SDir  :: SEntity 'Dir
 
+-- | Type-level witness for a path's entity kind, as per 'AbsRel'.
 class FileDir (fd :: Entity) where
   fdSing :: SEntity fd
 
 instance FileDir 'File where fdSing = SFile
 instance FileDir 'Dir  where fdSing = SDir
 
+-- | The fundamental path type, bearing a phantom @os@ type.
+-- You probably shouldn't patterm-match on this directly; the @choose@
+-- or @fold@ functions are more useful.
 data Path os (ar :: Anchor) (fd :: Entity) where
   Cwd ::
     Path os 'Rel 'Dir
@@ -54,9 +64,10 @@ data Path os (ar :: Anchor) (fd :: Entity) where
     -> Path os 'Rel fd
     -> Path os ar fd
 
-deriving instance Show    (Path os ar fd)
-deriving instance Eq      (Path os ar fd)
+deriving instance Show (Path os ar fd)
+deriving instance Eq   (Path os ar fd)
 
+-- This looks like it is hardcoded to Unix, and I guess it technically is, but it doesn't matter.
 instance Hashable (Path os ar fd) where
   hashWithSalt salt = fold (hashWithSalt salt '.') (hashWithSalt salt '/') (hashWithSalt salt) hashWithSalt
 
