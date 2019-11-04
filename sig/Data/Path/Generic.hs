@@ -1,4 +1,4 @@
-{-# LANGUAGE DataKinds #-}
+{-# LANGUAGE DataKinds, GADTs, LambdaCase #-}
 
 -- | You probably don't need to import this module directly. If you're working with cross-platform paths, use "Data.Path.Types"; if you're working with your current system path, use "Data.Path".
 module Data.Path.Generic
@@ -56,3 +56,4 @@ addExtension path ext =
 -- | Infix variant of 'addExtension'.
 (<.>) :: Path ar 'File -> String -> Path ar 'File
 (<.>) = addExtension
+

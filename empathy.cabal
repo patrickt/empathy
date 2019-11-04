@@ -31,7 +31,7 @@ common shared
                        -Wmissing-export-lists
                        -Wpartial-fields
 
-  build-depends:       base >= 4.11 && < 4.16
+  build-depends:       base >= 4.10 && < 4.15
 
 
 library empathy-core
@@ -39,6 +39,7 @@ library empathy-core
   hs-source-dirs:      core
   exposed-modules:     Data.Path.Types
   build-depends:       hashable > 1 && < 2
+                     , singletons >= 2.5 && < 3
 
 library empathy-sig
   import:              shared

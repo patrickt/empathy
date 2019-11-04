@@ -22,7 +22,7 @@ data Path os (ar :: Relative) (fd :: Entity) where
     Path os 'Abs 'Dir
   Comp ::
     String
-    -> Path os ar fd
+    -> Path os 'Rel fd
   Combine ::
     Path os ar 'Dir
     -> Path os 'Rel fd
