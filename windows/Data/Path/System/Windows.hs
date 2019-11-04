@@ -8,3 +8,6 @@ type System = Windows
 
 pathSeparator :: Char
 pathSeparator = '\\' -- smh
+
+forbiddenCharacters :: String
+forbiddenCharacters = "\\\0*?"

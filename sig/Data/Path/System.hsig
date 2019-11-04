@@ -6,3 +6,5 @@ signature Data.Path.System
 data System
 
 pathSeparator :: Char
+
+forbiddenCharacters :: String

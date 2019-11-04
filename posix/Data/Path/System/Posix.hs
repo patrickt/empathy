@@ -8,3 +8,6 @@ type System = Posix
 
 pathSeparator :: Char
 pathSeparator = '/'
+
+forbiddenCharacters :: String
+forbiddenCharacters = ":/\0"
