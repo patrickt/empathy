@@ -6,6 +6,8 @@ module Data.Path.Generic
   , Path
   , Relative (..)
   , Entity (..)
+  -- * Eliminating paths
+  , toString
   -- * Predefined constants
   , currentDir
   , rootDir
@@ -22,6 +24,8 @@ import qualified Data.Path.Types as T
 
 type Path = T.Path System
 
+toString :: Path ar fd -> String
+toString p = T.fold mempty (showChar pathSeparator) showString (\a b -> a <> showChar pathSeparator <> b) p ""
 
 currentDir :: Path 'Rel 'Dir
 currentDir = Cwd
