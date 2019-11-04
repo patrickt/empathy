@@ -10,6 +10,7 @@ module Data.Path.Generic
   , toString
   , chooseAbsRel
   , chooseFileDir
+  , choose
   -- * Predefined constants
   , currentDir
   , rootDir
@@ -46,6 +47,19 @@ chooseFileDir :: forall ar fd a . FileDir fd
 chooseFileDir onFile onDir p = case fdSing @fd of
   SFile -> onFile p
   SDir  -> onDir p
+
+choose :: forall ar fd a . (AbsRel ar, FileDir fd)
+       => (Path 'Abs 'File -> a)
+       -> (Path 'Rel 'File -> a)
+       -> (Path 'Abs 'Dir  -> a)
+       -> (Path 'Rel 'Dir  -> a)
+       -> Path ar fd
+       -> a
+choose onAF onRF onAD onRD p = case (arSing @ar, fdSing @fd) of
+  (SAbs, SFile) -> onAF p
+  (SRel, SFile) -> onRF p
+  (SAbs, SDir)  -> onAD p
+  (SRel, SDir)  -> onRD p
 
 currentDir :: Path 'Rel 'Dir
 currentDir = Cwd
