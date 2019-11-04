@@ -20,6 +20,8 @@ module Data.Path.Generic
   , parse
   , currentDir
   , rootDir
+  -- * Unsafe path constructors
+  , relDir
   -- * Eliminating paths
   , toString
   , chooseAbsRel
@@ -37,9 +39,11 @@ import           Data.Bifunctor
 import           Data.Coerce
 import           Data.Path.System
 import           Data.Path.Types hiding (Path)
-import           Data.Type.Equality
 import qualified Data.Path.Types as T
+import           Data.Proxy
+import           Data.Type.Equality
 import           Data.Void
+import           GHC.TypeLits
 import qualified Text.Megaparsec as P
 import qualified Text.Megaparsec.Char as P
 
@@ -55,13 +59,23 @@ currentDir = Cwd
 rootDir :: Path 'Abs 'Dir
 rootDir = Root
 
+-- | Construct a relative directory from a type-level string. To invoke
+-- this function, pass it an explicit type application of a string:
+--
+-- > rootDir </> relDir @"tmp"
+--
+-- This currently performs no compile-time parsing of the string; this behavior
+-- may change if GHC makes doing so easier. For now, it calls 'error'.
+relDir :: forall str . KnownSymbol str => Path 'Rel 'Dir
+relDir = Comp (symbolVal (Proxy @str))
+
 type Textual text = (P.Token text ~ Char, P.Stream text)
 
 -- | This parser accepts either 'Text' or 'String' values.
 parse :: forall ar fd text . (Textual text, AbsRel ar, FileDir fd)
       => text
       -> Either String (Path ar fd)
-parse = first P.errorBundlePretty . P.parse (parser <* ) ""
+parse = first P.errorBundlePretty . P.parse (parser <* P.eof) ""
   where
     parser :: P.Parsec Void text (Path ar fd)
     parser = do
