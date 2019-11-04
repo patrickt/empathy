@@ -1,0 +1,5 @@
+* integrate with streaming-bytestring
+* and directory
+* write parser UUUGH I DON'T WANNA
+* unit test out the ass
+* thank Rob
