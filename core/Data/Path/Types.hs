@@ -1,4 +1,5 @@
-{-# LANGUAGE DataKinds, GADTs, KindSignatures, LambdaCase, RankNTypes, StandaloneDeriving, TypeOperators, UndecidableInstances #-}
+{-# LANGUAGE DataKinds, GADTs, KindSignatures, LambdaCase, RankNTypes, StandaloneDeriving, TypeOperators,
+             UndecidableInstances #-}
 
 module Data.Path.Types
     ( -- * Core types
@@ -15,6 +16,7 @@ module Data.Path.Types
 
 import Data.Hashable
 import Data.String
+import Data.Type.Equality
 import GHC.TypeLits
 
 -- | Indicates whether a 'Path' is absolute or relative.
@@ -24,6 +26,11 @@ data Anchor = Abs | Rel deriving (Show, Eq)
 data SAnchor (ar :: Anchor) where
   SAbs :: SAnchor 'Abs
   SRel :: SAnchor 'Rel
+
+instance TestEquality SAnchor where
+  testEquality SAbs SAbs = Just Refl
+  testEquality SRel SRel = Just Refl
+  testEquality _    _    = Nothing
 
 -- | Type-level witness for whether a path is absolute or relative.
 -- You'll need this if you use any of the @choose@ family of functions.
@@ -40,6 +47,12 @@ data Entity = File | Dir deriving (Show, Eq)
 data SEntity (fd :: Entity) where
   SFile :: SEntity 'File
   SDir  :: SEntity 'Dir
+
+instance TestEquality SEntity where
+  testEquality SFile SFile = Just Refl
+  testEquality SDir SDir   = Just Refl
+  testEquality _    _      = Nothing
+
 
 -- | Type-level witness for a path's entity kind, as per 'AbsRel'.
 class FileDir (fd :: Entity) where

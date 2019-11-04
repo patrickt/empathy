@@ -1,5 +1,5 @@
-{-# LANGUAGE AllowAmbiguousTypes, ConstraintKinds, DataKinds, GADTs, LambdaCase, RankNTypes, ScopedTypeVariables, TypeApplications,
-             TypeFamilies #-}
+{-# LANGUAGE AllowAmbiguousTypes, ConstraintKinds, DataKinds, GADTs, LambdaCase, RankNTypes, ScopedTypeVariables,
+             TypeApplications, TypeFamilies #-}
 
 -- | You probably don't need to import this module directly. If you're working with cross-platform paths, use "Data.Path.Types"; if you're working with your current system path, use "Data.Path".
 --
@@ -14,6 +14,8 @@ module Data.Path.Generic
   , Path
   , Anchor (..)
   , Entity (..)
+  , AbsRel
+  , FileDir
   -- * Constructing paths
   , parse
   , currentDir
@@ -30,12 +32,16 @@ module Data.Path.Generic
   , (<.>)
   ) where
 
+import           Control.Applicative
 import           Data.Bifunctor
+import           Data.Coerce
 import           Data.Path.System
 import           Data.Path.Types hiding (Path)
+import           Data.Type.Equality
 import qualified Data.Path.Types as T
 import           Data.Void
 import qualified Text.Megaparsec as P
+import qualified Text.Megaparsec.Char as P
 
 type Path = T.Path System
 
@@ -52,13 +58,19 @@ rootDir = Root
 type Textual text = (P.Token text ~ Char, P.Stream text)
 
 -- | This parser accepts either 'Text' or 'String' values.
-parse :: forall ar fd text . Textual text
+parse :: forall ar fd text . (Textual text, AbsRel ar, FileDir fd)
       => text
       -> Either String (Path ar fd)
 parse = first P.errorBundlePretty . P.parse parser ""
   where
     parser :: P.Parsec Void text (Path ar fd)
-    parser = fail "unimplemented!"
+    parser = do
+      mSlash <- optional (P.char pathSeparator)
+      case mSlash of
+        Just _  -> case (testEquality (arSing @ar) SAbs, testEquality (fdSing @fd) SDir) of
+          (Just Refl, Just Refl) -> pure rootDir
+          _      -> fail "unimplemented!"
+
 
 
 -- * Eliminating paths

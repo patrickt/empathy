@@ -6,7 +6,7 @@ import qualified Test.Tasty.HUnit as HUnit
 import           Data.Path (Path)
 import qualified Data.Path as Path
 
-assertParsesInto :: String -> Path os ar -> HUnit.Assertion
+assertParsesInto :: (Path.AbsRel ar, Path.FileDir fd) => String -> Path ar fd -> HUnit.Assertion
 assertParsesInto a b = case Path.parse a of
   Left s  -> HUnit.assertFailure ("error message: " <> s)
   Right p -> p @?= b
