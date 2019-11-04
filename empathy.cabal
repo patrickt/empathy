@@ -38,6 +38,7 @@ library empathy-core
   import:              shared
   hs-source-dirs:      core
   exposed-modules:     Data.Path.Types
+  build-depends:       hashable > 1 && < 2
 
 library empathy-sig
   import:              shared
