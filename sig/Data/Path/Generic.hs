@@ -4,7 +4,7 @@
 module Data.Path.Generic
   ( System
   , Path
-  , Relative (..)
+  , Anchor (..)
   , Entity (..)
   -- * Eliminating paths
   , toString

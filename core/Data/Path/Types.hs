@@ -2,7 +2,7 @@
 
 module Data.Path.Types
     ( Path (..)
-    , Relative (..)
+    , Anchor (..)
     , Entity (..)
     , fold
     ) where
@@ -11,11 +11,11 @@ import Data.Hashable
 import Data.String
 import GHC.TypeLits
 
-data Relative = Abs | Rel deriving (Show, Eq)
+data Anchor = Abs | Rel deriving (Show, Eq)
 
 data Entity = File | Dir deriving (Show, Eq)
 
-data Path os (ar :: Relative) (fd :: Entity) where
+data Path os (ar :: Anchor) (fd :: Entity) where
   Cwd ::
     Path os 'Rel 'Dir
   Root ::

@@ -39,7 +39,6 @@ library empathy-core
   hs-source-dirs:      core
   exposed-modules:     Data.Path.Types
   build-depends:       hashable > 1 && < 2
-                     , singletons >= 2.5 && < 3
 
 library empathy-sig
   import:              shared
