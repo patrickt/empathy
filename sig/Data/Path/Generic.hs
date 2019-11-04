@@ -27,33 +27,37 @@ import qualified Data.Path.Types as T
 
 type Path = T.Path System
 
+-- | Convert a 'Path' to a String, suitable for being passed as a @FilePath@ from @System.FilePath@.
 toString :: Path ar fd -> String
 toString p = T.fold mempty (showChar pathSeparator) showString (\a b -> a <> showChar pathSeparator <> b) p ""
 
+-- | An eliminator for absolute or relative paths, ignoring entity type.
 chooseAbsRel :: forall ar fd a . AbsRel ar
-             => (Path 'Abs fd -> a)
-             -> (Path 'Rel fd -> a)
-             -> Path ar fd
+             => (Path 'Abs fd -> a) -- ^ Handles absolute paths.
+             -> (Path 'Rel fd -> a) -- ^ Handles relative paths.
+             -> Path ar fd          -- ^ The path to analyze.
              -> a
 chooseAbsRel onAbs onRel p = case arSing @ar of
   SAbs -> onAbs p
   SRel -> onRel p
 
+-- | An eliminator for files or directories, ignoring anchor status.
 chooseFileDir :: forall ar fd a . FileDir fd
-             => (Path ar 'File -> a)
-             -> (Path ar 'Dir  -> a)
-             -> Path ar fd
+             => (Path ar 'File -> a) -- ^ Handles files.
+             -> (Path ar 'Dir  -> a) -- ^ Handles directories.
+             -> Path ar fd           -- ^ The path to analyze.
              -> a
 chooseFileDir onFile onDir p = case fdSing @fd of
   SFile -> onFile p
   SDir  -> onDir p
 
+-- | A general-purpose eliminator for any 'Path' type.
 choose :: forall ar fd a . (AbsRel ar, FileDir fd)
-       => (Path 'Abs 'File -> a)
-       -> (Path 'Rel 'File -> a)
-       -> (Path 'Abs 'Dir  -> a)
-       -> (Path 'Rel 'Dir  -> a)
-       -> Path ar fd
+       => (Path 'Abs 'File -> a) -- ^ Handles absolute files.
+       -> (Path 'Rel 'File -> a) -- ^ Handles relative files.
+       -> (Path 'Abs 'Dir  -> a) -- ^ Handles absolute directories.
+       -> (Path 'Rel 'Dir  -> a) -- ^ Handles relative directories.
+       -> Path ar fd             -- ^ The path to analyze.
        -> a
 choose onAF onRF onAD onRD p = case (arSing @ar, fdSing @fd) of
   (SAbs, SFile) -> onAF p
