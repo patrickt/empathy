@@ -61,7 +61,7 @@ type Textual text = (P.Token text ~ Char, P.Stream text)
 parse :: forall ar fd text . (Textual text, AbsRel ar, FileDir fd)
       => text
       -> Either String (Path ar fd)
-parse = first P.errorBundlePretty . P.parse parser ""
+parse = first P.errorBundlePretty . P.parse (parser <* ) ""
   where
     parser :: P.Parsec Void text (Path ar fd)
     parser = do
@@ -69,7 +69,8 @@ parse = first P.errorBundlePretty . P.parse parser ""
       case mSlash of
         Just _  -> case (testEquality (arSing @ar) SAbs, testEquality (fdSing @fd) SDir) of
           (Just Refl, Just Refl) -> pure rootDir
-          _      -> fail "unimplemented!"
+          _                      -> fail "Expected relative path, got absolute path."
+
 
 
 
