@@ -32,6 +32,7 @@ common shared
                        -Wpartial-fields
 
   build-depends:       base >= 4.10 && < 4.15
+                     , megaparsec ^>= 7.0.5
 
 
 library empathy-core

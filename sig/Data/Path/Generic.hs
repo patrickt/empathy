@@ -1,4 +1,5 @@
-{-# LANGUAGE DataKinds, GADTs, LambdaCase, ScopedTypeVariables, TypeApplications, RankNTypes #-}
+{-# LANGUAGE AllowAmbiguousTypes, ConstraintKinds, DataKinds, GADTs, LambdaCase, RankNTypes, ScopedTypeVariables, TypeApplications,
+             TypeFamilies #-}
 
 -- | You probably don't need to import this module directly. If you're working with cross-platform paths, use "Data.Path.Types"; if you're working with your current system path, use "Data.Path".
 --
@@ -13,7 +14,8 @@ module Data.Path.Generic
   , Path
   , Anchor (..)
   , Entity (..)
-  -- * Constructing
+  -- * Constructing paths
+  , parse
   , currentDir
   , rootDir
   -- * Eliminating paths
@@ -28,11 +30,16 @@ module Data.Path.Generic
   , (<.>)
   ) where
 
-import Data.Path.System
-import Data.Path.Types hiding (Path)
+import           Data.Bifunctor
+import           Data.Path.System
+import           Data.Path.Types hiding (Path)
 import qualified Data.Path.Types as T
+import           Data.Void
+import qualified Text.Megaparsec as P
 
 type Path = T.Path System
+
+-- * Constructing paths
 
 -- | The current directory. You can use this with '</>' to build relative paths.
 currentDir :: Path 'Rel 'Dir
@@ -42,8 +49,19 @@ currentDir = Cwd
 rootDir :: Path 'Abs 'Dir
 rootDir = Root
 
-parse :: forall ar fd . String -> Maybe (Path ar fd)
-parse = undefined
+type Textual text = (P.Token text ~ Char, P.Stream text)
+
+-- | This parser accepts either 'Text' or 'String' values.
+parse :: forall ar fd text . Textual text
+      => text
+      -> Either String (Path ar fd)
+parse = first P.errorBundlePretty . P.parse parser ""
+  where
+    parser :: P.Parsec Void text (Path ar fd)
+    parser = fail "unimplemented!"
+
+
+-- * Eliminating paths
 
 -- | Convert a 'Path' to a String, suitable for being passed as a @FilePath@ from @System.FilePath@.
 toString :: Path ar fd -> String
@@ -83,6 +101,8 @@ choose onAF onRF onAD onRD p = case (arSing @ar, fdSing @fd) of
   (SAbs, SDir)  -> onAD p
   (SRel, SDir)  -> onRD p
 
+-- * Building paths
+
 -- | Join a directory (relative or absolute) with a relative component (file or directory).
 combine :: Path ar 'Dir -> Path 'Rel fd -> Path ar fd
 combine = Combine
@@ -100,7 +120,7 @@ addExtension :: Path ar 'File -> String -> Path ar 'File
 addExtension path ext =
   let ext' = '.' : dropWhile (== '.') ext
   in case path of
-    Comp s -> Comp (s <> ext')
+    Comp s        -> Comp (s <> ext')
     Combine xs as -> Combine xs (addExtension as ext)
 
 -- | Infix variant of 'addExtension'.
