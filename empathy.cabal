@@ -78,5 +78,8 @@ test-suite empathy-test
   hs-source-dirs:      test
   main-is:             Spec.hs
 
-  build-depends:       base ^>= 4.11
+  build-depends:       base
+                     , empathy
+                     , tasty ^>= 1.2.3
+                     , tasty-hunit ^>= 0.10.0.2
 
