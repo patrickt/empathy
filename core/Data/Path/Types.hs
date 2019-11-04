@@ -1,9 +1,15 @@
 {-# LANGUAGE DataKinds, GADTs, KindSignatures, LambdaCase, RankNTypes, StandaloneDeriving, TypeOperators, UndecidableInstances #-}
 
 module Data.Path.Types
-    ( Path (..)
-    , Relative (..)
+    ( -- * Core types
+      Path (..)
+    , Anchor (..)
     , Entity (..)
+      -- * Singleton classes and types
+    , AbsRel (..)
+    , SAnchor (..)
+    , FileDir (..)
+    , SEntity (..)
     , fold
     ) where
 
@@ -11,18 +17,38 @@ import Data.Hashable
 import Data.String
 import GHC.TypeLits
 
-data Relative = Abs | Rel deriving (Show, Eq)
+data Anchor = Abs | Rel deriving (Show, Eq)
+
+data SAnchor (ar :: Anchor) where
+  SAbs :: SAnchor 'Abs
+  SRel :: SAnchor 'Rel
+
+class AbsRel (ar :: Anchor) where
+  arSing :: SAnchor ar
+
+instance AbsRel 'Abs where arSing = SAbs
+instance AbsRel 'Rel where arSing = SRel
 
 data Entity = File | Dir deriving (Show, Eq)
 
-data Path os (ar :: Relative) (fd :: Entity) where
+data SEntity (fd :: Entity) where
+  SFile :: SEntity 'File
+  SDir  :: SEntity 'Dir
+
+class FileDir (fd :: Entity) where
+  fdSing :: SEntity fd
+
+instance FileDir 'File where fdSing = SFile
+instance FileDir 'Dir  where fdSing = SDir
+
+data Path os (ar :: Anchor) (fd :: Entity) where
   Cwd ::
     Path os 'Rel 'Dir
   Root ::
     Path os 'Abs 'Dir
   Comp ::
     String
-    -> Path os ar fd
+    -> Path os 'Rel fd
   Combine ::
     Path os ar 'Dir
     -> Path os 'Rel fd
@@ -33,7 +59,6 @@ deriving instance Eq      (Path os ar fd)
 
 instance Hashable (Path os ar fd) where
   hashWithSalt salt = fold (hashWithSalt salt '.') (hashWithSalt salt '/') (hashWithSalt salt) hashWithSalt
-
 
 fold :: f
      -> f

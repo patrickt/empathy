@@ -31,7 +31,7 @@ common shared
                        -Wmissing-export-lists
                        -Wpartial-fields
 
-  build-depends:       base >= 4.11 && < 4.16
+  build-depends:       base >= 4.10 && < 4.15
 
 
 library empathy-core
