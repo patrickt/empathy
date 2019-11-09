@@ -87,7 +87,6 @@ parse = first P.errorBundlePretty . P.parse (parser <* P.eof) ""
 
 
 
-
 -- * Eliminating paths
 
 -- | Convert a 'Path' to a String, suitable for being passed as a @FilePath@ from @System.FilePath@.

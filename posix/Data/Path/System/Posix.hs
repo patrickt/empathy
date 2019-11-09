@@ -1,6 +1,7 @@
 module Data.Path.System.Posix
   ( System
   , pathSeparator
+  , forbiddenCharacters
   ) where
 
 data Posix

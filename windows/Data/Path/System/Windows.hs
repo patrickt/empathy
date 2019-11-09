@@ -1,6 +1,7 @@
 module Data.Path.System.Windows
   ( System
   , pathSeparator
+  , forbiddenCharacters
   ) where
 
 data Windows

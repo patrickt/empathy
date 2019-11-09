@@ -1,6 +1,7 @@
 signature Data.Path.System
   ( System
   , pathSeparator
+  , forbiddenCharacters
   ) where
 
 data System
