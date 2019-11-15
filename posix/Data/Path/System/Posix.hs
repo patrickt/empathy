@@ -11,4 +11,4 @@ pathSeparator :: Char
 pathSeparator = '/'
 
 forbiddenCharacters :: String
-forbiddenCharacters = ":/\0"
+forbiddenCharacters = "/:\0"

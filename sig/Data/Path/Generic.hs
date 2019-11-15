@@ -35,8 +35,11 @@ module Data.Path.Generic
   ) where
 
 import           Control.Applicative
+import           Control.Monad
 import           Data.Bifunctor
 import           Data.Coerce
+import           Data.Foldable (foldl')
+import           Data.Maybe
 import           Data.Path.System
 import           Data.Path.Types hiding (Path)
 import qualified Data.Path.Types as T
@@ -46,7 +49,7 @@ import           Data.Void
 import           GHC.TypeLits
 import qualified Text.Megaparsec as P
 import qualified Text.Megaparsec.Char as P
-
+import Debug.Trace
 type Path = T.Path System
 
 -- * Constructing paths
@@ -72,6 +75,9 @@ relDir = Comp (symbolVal (Proxy @str))
 type Textual text = (P.Token text ~ Char, P.Stream text)
 
 -- | This parser accepts either 'Text' or 'String' values.
+-- N.B. this will parse @foo//bar@ as @foo </> bar@. If this breaks
+-- your code, I think you probably need to reexamine your assumptions,
+-- but if you're convinced it's the right thing to do then file an issue.
 parse :: forall ar fd text . (Textual text, AbsRel ar, FileDir fd)
       => text
       -> Either String (Path ar fd)
@@ -79,13 +85,30 @@ parse = first P.errorBundlePretty . P.parse (parser <* P.eof) ""
   where
     parser :: P.Parsec Void text (Path ar fd)
     parser = do
-      mSlash <- optional (P.char pathSeparator)
-      case mSlash of
-        Just _  -> case (testEquality (arSing @ar) SAbs, testEquality (fdSing @fd) SDir) of
-          (Just Refl, Just Refl) -> pure rootDir
-          _                      -> fail "Expected relative path, got absolute path."
-
-
+      case (testEquality (arSing @ar) SAbs, testEquality (arSing @ar) SRel, testEquality (fdSing @fd) SDir, testEquality (fdSing @fd) SFile) of
+        (isAbs, isRel, isDir, isFile) -> do
+          case isAbs of
+            Just Refl -> void (P.char '/')
+            Nothing   -> pure ()
+          let separatedBy = case isDir of
+                Just Refl -> P.sepEndBy
+                Nothing   -> P.sepBy
+          comps <- some (P.noneOf forbiddenCharacters) `separatedBy` some (P.char '/')
+          case (isAbs, isRel, isDir, isFile) of
+            -- Absolute directory
+            (Just Refl, Nothing, Just Refl, Nothing) -> pure (foldl' (</>) rootDir (fmap Comp comps))
+            -- Relative directory
+            (Nothing, Just Refl, Just Refl, Nothing) -> pure (foldl' (</>) currentDir (fmap Comp comps))
+            -- Absolute file
+            (Just Refl, Nothing, Nothing, Just Refl)
+              | null comps -> fail "Expected one or more path components"
+              | otherwise  -> pure ((foldl' (</>) rootDir (fmap Comp (init comps))) </> Comp (last comps))
+            -- Relative file
+            (Nothing, Just Refl, Nothing, Just Refl)
+              | null comps -> fail "Expected one or more path components"
+              | otherwise  -> pure ((foldl' (</>) currentDir (fmap Comp (init comps))) </> Comp (last comps))
+            -- Unreachable
+            _ -> fail "Failure of `empathy`: this should be unreachable"
 
 -- * Eliminating paths
 
@@ -105,10 +128,10 @@ chooseAbsRel onAbs onRel p = case arSing @ar of
 
 -- | An eliminator for files or directories, ignoring anchor status.
 chooseFileDir :: forall ar fd a . FileDir fd
-             => (Path ar 'File -> a) -- ^ Handles files.
-             -> (Path ar 'Dir  -> a) -- ^ Handles directories.
-             -> Path ar fd           -- ^ The path to analyze.
-             -> a
+              => (Path ar 'File -> a) -- ^ Handles files.
+              -> (Path ar 'Dir  -> a) -- ^ Handles directories.
+              -> Path ar fd           -- ^ The path to analyze.
+              -> a
 chooseFileDir onFile onDir p = case fdSing @fd of
   SFile -> onFile p
   SDir  -> onDir p
