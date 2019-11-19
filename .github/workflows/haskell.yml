@@ -30,6 +30,7 @@ jobs:
     - name: Build & test
       run: |
         cabal v2-build empathy
+        cabal v2-test
         cabal v2-haddock
         cabal v2-sdist
         cabal check

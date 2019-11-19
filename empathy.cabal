@@ -32,6 +32,7 @@ common shared
                        -Wpartial-fields
 
   build-depends:       base >= 4.10 && < 4.15
+                     , megaparsec ^>= 7.0.5
 
 
 library empathy-core
@@ -79,4 +80,7 @@ test-suite empathy-test
   main-is:             Spec.hs
 
   build-depends:       base
+                     , empathy
+                     , tasty ^>= 1.2.3
+                     , tasty-hunit ^>= 0.10.0.2
 

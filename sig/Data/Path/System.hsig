@@ -1,8 +1,11 @@
 signature Data.Path.System
   ( System
   , pathSeparator
+  , forbiddenCharacters
   ) where
 
 data System
 
 pathSeparator :: Char
+
+forbiddenCharacters :: String
