@@ -1,5 +1,4 @@
-{-# LANGUAGE AllowAmbiguousTypes, ConstraintKinds, DataKinds, GADTs, LambdaCase, RankNTypes, ScopedTypeVariables,
-             TypeApplications, TypeFamilies #-}
+{-# LANGUAGE AllowAmbiguousTypes, ConstraintKinds, DataKinds, GADTs, ScopedTypeVariables, TypeApplications #-}
 
 -- | You probably don't need to import this module directly. If you're working with cross-platform paths, use "Data.Path.Types"; if you're working with your current system path, use "Data.Path".
 --
@@ -34,22 +33,20 @@ module Data.Path.Generic
   , (<.>)
   ) where
 
-import           Control.Applicative
-import           Control.Monad
-import           Data.Bifunctor
-import           Data.Coerce
+import           Control.Applicative (some)
+import           Control.Monad (void)
+import           Data.Bifunctor (first)
 import           Data.Foldable (foldl')
-import           Data.Maybe
 import           Data.Path.System
 import           Data.Path.Types hiding (Path)
 import qualified Data.Path.Types as T
-import           Data.Proxy
+import           Data.Proxy (Proxy (..))
 import           Data.Type.Equality
-import           Data.Void
-import           GHC.TypeLits
+import           Data.Void (Void)
+import           GHC.TypeLits (KnownSymbol, symbolVal)
 import qualified Text.Megaparsec as P
 import qualified Text.Megaparsec.Char as P
-import Debug.Trace
+
 type Path = T.Path System
 
 -- * Constructing paths
@@ -84,7 +81,7 @@ parse :: forall ar fd text . (Textual text, AbsRel ar, FileDir fd)
 parse = first P.errorBundlePretty . P.parse (parser <* P.eof) ""
   where
     parser :: P.Parsec Void text (Path ar fd)
-    parser = do
+    parser =
       case (testEquality (arSing @ar) SAbs, testEquality (arSing @ar) SRel, testEquality (fdSing @fd) SDir, testEquality (fdSing @fd) SFile) of
         (isAbs, isRel, isDir, isFile) -> do
           case isAbs of
@@ -102,11 +99,11 @@ parse = first P.errorBundlePretty . P.parse (parser <* P.eof) ""
             -- Absolute file
             (Just Refl, Nothing, Nothing, Just Refl)
               | null comps -> fail "Expected one or more path components"
-              | otherwise  -> pure ((foldl' (</>) rootDir (fmap Comp (init comps))) </> Comp (last comps))
+              | otherwise  -> pure (foldl' (</>) rootDir (fmap Comp (init comps)) </> Comp (last comps))
             -- Relative file
             (Nothing, Just Refl, Nothing, Just Refl)
               | null comps -> fail "Expected one or more path components"
-              | otherwise  -> pure ((foldl' (</>) currentDir (fmap Comp (init comps))) </> Comp (last comps))
+              | otherwise  -> pure (foldl' (</>) currentDir (fmap Comp (init comps)) </> Comp (last comps))
             -- Unreachable
             _ -> fail "Failure of `empathy`: this should be unreachable"
 
@@ -175,4 +172,3 @@ addExtension path ext =
 -- | Infix variant of 'addExtension'.
 (<.>) :: Path ar 'File -> String -> Path ar 'File
 (<.>) = addExtension
-

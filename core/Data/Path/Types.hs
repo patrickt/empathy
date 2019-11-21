@@ -1,5 +1,4 @@
-{-# LANGUAGE DataKinds, GADTs, KindSignatures, LambdaCase, RankNTypes, StandaloneDeriving, TypeOperators,
-             UndecidableInstances #-}
+{-# LANGUAGE DataKinds, GADTs, KindSignatures, LambdaCase, StandaloneDeriving, TypeOperators, UndecidableInstances #-}
 
 module Data.Path.Types
     ( -- * Core types

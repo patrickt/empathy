@@ -1,4 +1,4 @@
-cabal-version:       2.4
+cabal-version:       3.0
 name:                empathy
 version:             0.1.0.0
 synopsis:            typed paths, with feeling
@@ -14,6 +14,7 @@ build-type:          Simple
 extra-doc-files:     README.md
                    , CHANGELOG.md
 tested-with:         GHC == 8.6.4
+                   , GHC == 8.8.1
 
 source-repository head
   type:                git
@@ -33,7 +34,6 @@ common shared
 
   build-depends:       base >= 4.10 && < 4.15
                      , megaparsec ^>= 7.0.5
-
 
 library empathy-core
   import:              shared
@@ -71,14 +71,11 @@ library
     build-depends:     empathy-posix
     mixins:            empathy-sig (Data.Path.Generic as Data.Path) requires (Data.Path.System as Data.Path.System.Posix)
 
-
-
 test-suite empathy-test
   import:              shared
   type:                exitcode-stdio-1.0
   hs-source-dirs:      test
   main-is:             Spec.hs
-
   build-depends:       base
                      , empathy
                      , tasty ^>= 1.2.3
