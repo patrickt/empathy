@@ -1,6 +1,6 @@
 # empathy
 
-[![Build Status](https://action-badges.now.sh/fused-effects/fused-effects)](https://github.com/fused-effects/fused-effects/actions) [![Hackage](https://img.shields.io/hackage/v/empathy.svg)](https://hackage.haskell.org/package/empathy)
+[![Build Status](https://action-badges.now.sh/patrickt/empathy)](https://github.com/patrickt/empathy/actions) [![Hackage](https://img.shields.io/hackage/v/empathy.svg)](https://hackage.haskell.org/package/empathy)
 
 `empathy` is a modern library for typed path manipulation. It takes advantage of newer GHC features like `DataKinds`, Backpack, and custom type errors so as to minimize the library footprint while yielding the maximum amount of type safety.
 
