@@ -33,6 +33,8 @@ common shared
                        -Wpartial-fields
 
   build-depends:       base >= 4.10 && < 4.15
+                     , deepseq ^>= 1.4.4
+                     , hashable ^>= 1.3
                      , megaparsec ^>= 7.0.5
 
 library empathy-core
