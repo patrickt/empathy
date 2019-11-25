@@ -1,4 +1,5 @@
-{-# LANGUAGE AllowAmbiguousTypes, ConstraintKinds, DataKinds, GADTs, ScopedTypeVariables, TypeApplications #-}
+{-# LANGUAGE AllowAmbiguousTypes, ConstraintKinds, DataKinds, GADTs, LambdaCase, ScopedTypeVariables,
+             TypeApplications #-}
 
 -- | You probably don't need to import this module directly. If you're working with cross-platform paths, use "Data.Path.Types"; if you're working with your current system path, use "Data.Path".
 --
@@ -111,10 +112,12 @@ parse = first P.errorBundlePretty . P.parse (parser <* P.eof) ""
 
 -- | Convert a 'Path' to a String, suitable for being passed as a @FilePath@ from @System.FilePath@.
 toString :: Path ar fd -> String
-toString p = finish $ T.fold mempty (showChar pathSeparator) showString comb p ""
-  where
-    comb a b = a <> showChar pathSeparator <> b
-    finish   = (pathSeparator :) . dropWhile (== pathSeparator)
+toString = \case
+  Cwd -> "."
+  p   -> finish $ T.fold (showChar '.') (showChar pathSeparator) showString comb p ""
+    where
+      comb a b = a <> showChar pathSeparator <> b
+      finish   = (pathSeparator :) . dropWhile (== pathSeparator)
 
 -- | An eliminator for absolute or relative paths, ignoring entity type.
 chooseAbsRel :: forall ar fd a . AbsRel ar
