@@ -111,12 +111,10 @@ parse = first P.errorBundlePretty . P.parse (parser <* P.eof) ""
 
 -- | Convert a 'Path' to a String, suitable for being passed as a @FilePath@ from @System.FilePath@.
 toString :: Path ar fd -> String
-toString p = T.fold mempty (showChar pathSeparator) showString comb p ""
+toString p = finish $ T.fold mempty (showChar pathSeparator) showString comb p ""
   where
-    comb :: ShowS -> ShowS -> ShowS
-    comb a b
-      | a "" == [pathSeparator] = a <> b
-      | otherwise               = a <> showChar pathSeparator <> b
+    comb a b = a <> showChar pathSeparator <> b
+    finish   = (pathSeparator :) . dropWhile (== pathSeparator)
 
 -- | An eliminator for absolute or relative paths, ignoring entity type.
 chooseAbsRel :: forall ar fd a . AbsRel ar
