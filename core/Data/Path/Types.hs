@@ -1,4 +1,5 @@
-{-# LANGUAGE DataKinds, GADTs, KindSignatures, LambdaCase, StandaloneDeriving, TypeOperators, UndecidableInstances #-}
+{-# LANGUAGE DataKinds, DeriveGeneric, GADTs, KindSignatures, LambdaCase, StandaloneDeriving, TypeOperators,
+             UndecidableInstances #-}
 
 module Data.Path.Types
     ( -- * Core types
@@ -13,6 +14,7 @@ module Data.Path.Types
     , fold
     ) where
 
+import Control.DeepSeq
 import Data.Hashable
 import Data.String
 import Data.Type.Equality
@@ -76,8 +78,16 @@ data Path os (ar :: Anchor) (fd :: Entity) where
     -> Path os 'Rel fd
     -> Path os ar fd
 
-deriving instance Show (Path os ar fd)
-deriving instance Eq   (Path os ar fd)
+deriving instance Show    (Path os ar fd)
+deriving instance Eq      (Path os ar fd)
+
+-- | The semantics of the actual path comparison are left undefined;
+-- this instance is meant mainly for use in @Map@ or @Set@ containers
+-- that depend on @Ord@ instances.
+deriving instance Ord (Path os ar fd)
+
+instance NFData (Path os ar fd) where
+  rnf = fold () () rnf seq
 
 -- This looks like it is hardcoded to Unix, and I guess it technically is, but it doesn't matter.
 instance Hashable (Path os ar fd) where

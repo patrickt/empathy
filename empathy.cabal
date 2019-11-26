@@ -32,7 +32,8 @@ common shared
                        -Wmissing-export-lists
                        -Wpartial-fields
 
-  build-depends:       base >= 4.10 && < 4.15
+  build-depends:       base >= 4.12 && < 4.15
+                     , deepseq ^>= 1.4.4
                      , megaparsec ^>= 7.0.5
 
 library empathy-core
