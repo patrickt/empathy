@@ -7,7 +7,7 @@
 ## What's cool about it?
 
 * Platform-specific details are abstracted away with Backpack. Every such detail is accounted for in a signature file.
-* Path literals are constructed using type-level `Symbol`s, not value-level `String`s. This lets us (or will let us, since I haven't implemented it yet) do compile-time parsing to enforce well-formedness of paths; that is, asking the string `"/usr/bin/"` to represent anything but an absolute directory will be a compile-time error.
+* Path literals are constructed using type-level `Symbol`s, not value-level `String`s. (You will get a custom type error if you attempt to use a `String` literal for a path). This will let us do compile-time parsing to enforce well-formedness of paths; that is, asking the string `"/usr/bin/"` to represent anything but an absolute directory will be a compile-time error.
 * Information about the relative/absolute or file/directory nature of a given path is stored on the type-level rather than the value level.
 * It comes with batteries included (`optparse-applicative` parsers, `Hashable` and `NFData` instances, etc.).
 
