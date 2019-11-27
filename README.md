@@ -4,6 +4,13 @@
 
 `empathy` is a modern library for typed path manipulation. It takes advantage of newer GHC features like `DataKinds`, Backpack, and custom type errors so as to minimize the library footprint while yielding the maximum amount of type safety.
 
+## What's cool about it?
+
+* Platform-specific details are abstracted away with Backpack. Every such detail is accounted for in a signature file.
+* Path literals are constructed using type-level `Symbol`s, not value-level `String`s. This lets us (or will let us, since I haven't implemented it yet) do compile-time parsing to enforce well-formedness of paths; that is, asking the string `"/usr/bin/"` to represent anything but an absolute directory will be a compile-time error.
+* Information about the relative/absolute or file/directory nature of a given path is stored on the type-level rather than the value level.
+* It comes with batteries included (`optparse-applicative` parsers, `Hashable` and `NFData` instances, etc.).
+
 ## Why not [one of the alternative typed-path libraries]?
 
 I evaluated all of the libraries and wasn't happy with any of them. `pathtype` came closest to my needs, but bears historical cruft and doesn't take full advantage of newer GHC features. `path` requires Template Haskell and foregoes a rich path structure in favor of wrapping a bare string. `data-filepath` has a rich path structure but is unmaintained.
