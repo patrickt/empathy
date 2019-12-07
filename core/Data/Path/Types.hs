@@ -1,4 +1,4 @@
-{-# LANGUAGE DataKinds, DeriveGeneric, GADTs, KindSignatures, LambdaCase, StandaloneDeriving, TypeOperators,
+{-# LANGUAGE DataKinds, GADTs, KindSignatures, LambdaCase, StandaloneDeriving, TypeOperators,
              UndecidableInstances #-}
 
 module Data.Path.Types
