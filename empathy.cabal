@@ -33,6 +33,7 @@ common shared
                        -Wpartial-fields
 
   build-depends:       base >= 4.12 && < 4.15
+                     , aeson ^>= 1.4.6
                      , deepseq ^>= 1.4.4
                      , megaparsec ^>= 7.0.5
 
