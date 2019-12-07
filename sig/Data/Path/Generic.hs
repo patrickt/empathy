@@ -1,5 +1,6 @@
-{-# LANGUAGE AllowAmbiguousTypes, ConstraintKinds, DataKinds, GADTs, LambdaCase, ScopedTypeVariables,
-             TypeApplications #-}
+{-# OPTIONS_GHC -fno-warn-orphans #-}
+{-# LANGUAGE AllowAmbiguousTypes, ConstraintKinds, DataKinds, FlexibleInstances, GADTs, LambdaCase, ScopedTypeVariables,
+             TypeApplications, TypeSynonymInstances #-}
 
 -- | You probably don't need to import this module directly. If you're working with cross-platform paths, use "Data.Path.Types"; if you're working with your current system path, use "Data.Path".
 --
@@ -36,6 +37,7 @@ module Data.Path.Generic
 
 import           Control.Applicative (some)
 import           Control.Monad (void)
+import           Data.Aeson
 import           Data.Bifunctor (first)
 import           Data.Foldable (foldl')
 import           Data.Path.System
@@ -48,9 +50,16 @@ import           GHC.TypeLits (KnownSymbol, symbolVal)
 import qualified Text.Megaparsec as P
 import qualified Text.Megaparsec.Char as P
 
+-- * Constructing paths
 type Path = T.Path System
 
--- * Constructing paths
+instance ToJSON (Path ar fd) where
+  toJSON = toJSON . toString
+
+instance (AbsRel ar, FileDir fd) => FromJSON (Path ar fd) where
+  parseJSON v = do
+    str <- parseJSON @String v
+    either fail pure $ parse str
 
 -- | The current directory. You can use this with '</>' to build relative paths.
 currentDir :: Path 'Rel 'Dir
