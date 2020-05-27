@@ -1,14 +1,14 @@
+{-# LANGUAGE DataKinds #-}
 module Data.Path.System.Posix
   ( System
-  , pathSeparator
+  , PathSeparator
   , forbiddenCharacters
   ) where
 
 data Posix
 type System = Posix
 
-pathSeparator :: Char
-pathSeparator = '/'
+type PathSeparator = "/"
 
 forbiddenCharacters :: String
 forbiddenCharacters = "/:\0"

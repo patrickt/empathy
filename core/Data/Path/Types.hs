@@ -16,8 +16,6 @@ module Data.Path.Types
     Path (..),
     Anchor (..),
     Entity (..),
-    IsRelative,
-    IsAbsolute,
 
     -- * Singleton classes and types
     AbsRel (..),
@@ -31,24 +29,9 @@ import Control.DeepSeq
 import Data.Hashable
 import Data.Kind
 import Data.String
-import qualified Data.Symbol.Ascii as Sym
 import Data.Type.Equality
 import GHC.Generics
 import GHC.TypeLits
-
-type family Ensure (ar :: Anchor) (a :: Bool) :: Constraint where
-  Ensure 'Abs 'True = ()
-  Ensure 'Abs _ = TypeError ('Text "Absolute paths must begin with a slash")
-  Ensure 'Rel 'False = ()
-  Ensure 'Rel _ = TypeError ('Text "Relative paths must not begin with a slash")
-
-class KnownSymbol s => IsAbsolute (s :: Symbol)
-
-instance (KnownSymbol s, Ensure 'Abs (Sym.Head s == "/")) => IsAbsolute s
-
-class KnownSymbol s => IsRelative (s :: Symbol)
-
-instance (KnownSymbol s, Ensure 'Rel (Sym.Head s == "/")) => IsRelative s
 
 -- | Indicates whether a 'Path' is absolute or relative.
 data Anchor = Abs | Rel deriving (Show, Eq)

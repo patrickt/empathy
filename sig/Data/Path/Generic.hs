@@ -27,6 +27,8 @@ module Data.Path.Generic
     Entity (..),
     AbsRel,
     FileDir,
+    IsRelative,
+    IsAbsolute,
 
     -- * Constructing paths
     parse,
@@ -55,16 +57,31 @@ import Control.Monad (void)
 import Data.Aeson
 import Data.Bifunctor (first)
 import Data.Coerce
+import Data.Kind
 import Data.Path.System
 import Data.Path.Types hiding (Path)
 import qualified Data.Path.Types as T
-import Data.Path.Types (IsAbsolute, IsRelative)
 import Data.Proxy (Proxy (..))
+import qualified Data.Symbol.Ascii as Sym
 import Data.Type.Equality
 import Data.Void (Void)
 import GHC.TypeLits
 import qualified Text.Megaparsec as P
 import qualified Text.Megaparsec.Char as P
+
+type family Ensure (ar :: Anchor) (a :: Bool) :: Constraint where
+  Ensure 'Abs 'True = ()
+  Ensure 'Abs _ = TypeError ('Text "Absolute paths must begin with a slash")
+  Ensure 'Rel 'False = ()
+  Ensure 'Rel _ = TypeError ('Text "Relative paths must not begin with a slash")
+
+class KnownSymbol s => IsAbsolute (s :: Symbol)
+
+instance (KnownSymbol s, Ensure 'Abs (Sym.Head s == PathSeparator)) => IsAbsolute s
+
+class KnownSymbol s => IsRelative (s :: Symbol)
+
+instance (KnownSymbol s, Ensure 'Rel (Sym.Head s == PathSeparator)) => IsRelative s
 
 -- * Constructing paths
 
@@ -189,9 +206,10 @@ choose onAF onRF onAD onRD p = case (arSing @ar, fdSing @fd) of
 combine :: Path ar 'Dir -> Path 'Rel fd -> Path ar fd
 combine = coerce go
   where
+    sep = symbolVal (Proxy @PathSeparator)
     go a b
-      | a == "/" = a <> b
-      | otherwise = a <> "/" <> b
+      | a == sep = a <> b
+      | otherwise = a <> sep <> b
 
 infixr 5 </>
 

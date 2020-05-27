@@ -1,14 +1,16 @@
+{-# LANGUAGE DataKinds #-}
 module Data.Path.System.Windows
-  ( System
-  , pathSeparator
-  , forbiddenCharacters
-  ) where
+  ( System,
+    pathSeparator,
+    forbiddenCharacters,
+  )
+where
 
 data Windows
+
 type System = Windows
 
-pathSeparator :: Char
-pathSeparator = '\\' -- smh
+type PathSeparator = "\\"
 
 forbiddenCharacters :: String
 forbiddenCharacters = "\\\0*?"

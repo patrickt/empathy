@@ -1,11 +1,16 @@
+{-# LANGUAGE DataKinds #-}
+{-# LANGUAGE KindSignatures #-}
 signature Data.Path.System
   ( System
-  , pathSeparator
+  , PathSeparator
   , forbiddenCharacters
   ) where
 
+import GHC.TypeLits
+
 data System
 
-pathSeparator :: Char
+data PathSeparator :: Symbol
+instance KnownSymbol PathSeparator
 
 forbiddenCharacters :: String
