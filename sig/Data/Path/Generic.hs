@@ -120,17 +120,18 @@ parse ::
   Either String (Path ar fd)
 parse str = first P.errorBundlePretty $ P.parse @_ @String (parser <* P.eof) "" str
   where
+    separator = P.string (symbolVal (Proxy @PathSeparator))
     parser :: P.Parsec Void String (Path ar fd)
     parser =
       case (testEquality (arSing @ar) SAbs, testEquality (arSing @ar) SRel, testEquality (fdSing @fd) SDir, testEquality (fdSing @fd) SFile) of
         (isAbs, isRel, isDir, isFile) -> do
           case isAbs of
-            Just Refl -> void (P.char '/')
+            Just Refl -> void separator
             Nothing -> pure ()
           let separatedBy = case isDir of
                 Just Refl -> P.sepEndBy
                 Nothing -> P.sepBy
-          comps <- some (P.noneOf forbiddenCharacters) `separatedBy` some (P.char '/')
+          comps <- some (P.noneOf forbiddenCharacters) `separatedBy` some separator
           case (isAbs, isRel, isDir, isFile) of
             -- Absolute directory
             (Just Refl, Nothing, Just Refl, Nothing) -> pure (T.Path str)
