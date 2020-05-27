@@ -24,8 +24,7 @@ tempDir = Path.rootDir </> Path.relDir @"tmp"
 test_introduce :: Tasty.TestTree
 test_introduce = Tasty.testGroup "introduction"
   [ HUnit.testCase "parse '/' == rootDir" ("/" `assertParsesInto` Path.rootDir)
-  , HUnit.testCase "parse '/tmp'" ("/tmp" `assertParsesInto` tempDir)
-  , HUnit.testCase "parse '/tmp/" ("/tmp/" `assertParsesInto` tempDir)
+  , HUnit.testCase "parse '/tmp" ("/tmp" `assertParsesInto` tempDir)
   , HUnit.testCase "fails parsing /tmp as relative directory" (assertFailsParseInto @'Rel @'Dir "/tmp")
   , HUnit.testCase "fails parsing /tmp/ as relative file" (assertFailsParseInto @'Rel @'File "/tmp/")
   , HUnit.testCase "fails parsing /tmp/ as absolute file" (assertFailsParseInto @'Abs @'File "/tmp/")

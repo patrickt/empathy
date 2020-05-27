@@ -36,6 +36,7 @@ common shared
                      , aeson ^>= 1.4.6
                      , deepseq ^>= 1.4.4
                      , megaparsec ^>= 7.0.5
+                     , symbols ^>= 0.3
 
 library empathy-core
   import:              shared
@@ -82,4 +83,3 @@ test-suite empathy-test
                      , empathy
                      , tasty ^>= 1.2.3
                      , tasty-hunit ^>= 0.10.0.2
-
