@@ -7,6 +7,7 @@
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeApplications #-}
+{-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE TypeOperators #-}
 {-# LANGUAGE UndecidableInstances #-}
 {-# OPTIONS_GHC -fno-warn-orphans #-}
@@ -57,21 +58,13 @@ import Data.Coerce
 import Data.Path.System
 import Data.Path.Types hiding (Path)
 import qualified Data.Path.Types as T
+import Data.Path.Types (IsAbsolute, IsRelative)
 import Data.Proxy (Proxy (..))
-import qualified Data.Symbol.Ascii as Sym
 import Data.Type.Equality
 import Data.Void (Void)
 import GHC.TypeLits
 import qualified Text.Megaparsec as P
 import qualified Text.Megaparsec.Char as P
-
-class KnownSymbol s => IsAbsolute (s :: Symbol)
-
-instance (KnownSymbol s, (Sym.Head s == "/") ~ 'True) => IsAbsolute s
-
-class KnownSymbol s => IsRelative (s :: Symbol)
-
-instance (KnownSymbol s, (Sym.Head s == "/") ~ 'False) => IsRelative s
 
 -- * Constructing paths
 
