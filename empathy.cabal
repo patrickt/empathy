@@ -34,52 +34,61 @@ common shared
 
   build-depends:       base >= 4.12 && < 4.15
                      , aeson ^>= 1.4.6
+                     , bytestring
+                     , hashable
                      , deepseq ^>= 1.4.4
                      , megaparsec ^>= 7.0.5
                      , symbols ^>= 0.3
+                     , text
+                     , rawfilepath ^>= 0.2.4
 
 library empathy-core
   import:              shared
   hs-source-dirs:      core
   exposed-modules:     Data.Path.Types
+                     , Data.PathBuf
+                     , Data.Path
+                     , Data.Path.Internal.Component
+                     , Data.Path.Internal.Last
+                     , Data.Path.Internal.PathBuf
   build-depends:       hashable > 1 && < 2
 
-library empathy-sig
-  import:              shared
-  hs-source-dirs:      sig
-  exposed-modules:     Data.Path.Generic
-  signatures:          Data.Path.System
-  build-depends:       empathy-core
+-- library empathy-sig
+--   import:              shared
+--   hs-source-dirs:      sig
+--   exposed-modules:     Data.Path.Generic
+--   signatures:          Data.Path.System
+--   build-depends:       empathy-core
 
-library empathy-posix
-  import:              shared
-  hs-source-dirs:      posix
-  exposed-modules:     Data.Path.System.Posix
-  build-depends:       empathy-core
+-- library empathy-posix
+--   import:              shared
+--   hs-source-dirs:      posix
+--   exposed-modules:     Data.Path.System.Posix
+--   build-depends:       empathy-core
 
-library empathy-win32
-  import:              shared
-  hs-source-dirs:      windows
-  exposed-modules:     Data.Path.System.Windows
-  build-depends:       empathy-core
+-- library empathy-win32
+--   import:              shared
+--   hs-source-dirs:      windows
+--   exposed-modules:     Data.Path.System.Windows
+--   build-depends:       empathy-core
 
-library
-  import:              shared
-  build-depends:       empathy-sig
-  reexported-modules:  Data.Path
-  if os(windows)
-    build-depends:     empathy-win32
-    mixins:            empathy-sig (Data.Path.Generic as Data.Path) requires (Data.Path.System as Data.Path.System.Windows)
-  else
-    build-depends:     empathy-posix
-    mixins:            empathy-sig (Data.Path.Generic as Data.Path) requires (Data.Path.System as Data.Path.System.Posix)
+-- library
+--   import:              shared
+--   build-depends:       empathy-sig
+--   reexported-modules:  Data.Path
+--   if os(windows)
+--     build-depends:     empathy-win32
+--     mixins:            empathy-sig (Data.Path.Generic as Data.Path) requires (Data.Path.System as Data.Path.System.Windows)
+--   else
+--     build-depends:     empathy-posix
+--     mixins:            empathy-sig (Data.Path.Generic as Data.Path) requires (Data.Path.System as Data.Path.System.Posix)
 
-test-suite empathy-test
-  import:              shared
-  type:                exitcode-stdio-1.0
-  hs-source-dirs:      test
-  main-is:             Spec.hs
-  build-depends:       base
-                     , empathy
-                     , tasty ^>= 1.2.3
-                     , tasty-hunit ^>= 0.10.0.2
+-- test-suite empathy-test
+--   import:              shared
+--   type:                exitcode-stdio-1.0
+--   hs-source-dirs:      test
+--   main-is:             Spec.hs
+--   build-depends:       base
+--                      , empathy
+--                      , tasty ^>= 1.2.3
+--                      , tasty-hunit ^>= 0.10.0.2

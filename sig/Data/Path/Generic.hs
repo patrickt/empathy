@@ -87,9 +87,6 @@ instance (KnownSymbol s, Ensure 'Rel (Sym.Head s == PathSeparator)) => IsRelativ
 
 type Path = T.Path System
 
-instance ToJSON (Path ar fd) where
-  toJSON = toJSON . toString
-
 instance (AbsRel ar, FileDir fd) => FromJSON (Path ar fd) where
   parseJSON v = do
     str <- parseJSON @String v
@@ -97,7 +94,7 @@ instance (AbsRel ar, FileDir fd) => FromJSON (Path ar fd) where
 
 -- | The current directory. You can use this with '</>' to build relative paths.
 currentDir :: Path 'Rel 'Dir
-currentDir = T.Path "."
+currentDir = T.fromString "."
 
 -- | The root directory.
 rootDir :: Path 'Abs 'Dir

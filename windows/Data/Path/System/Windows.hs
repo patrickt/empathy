@@ -1,7 +1,7 @@
 {-# LANGUAGE DataKinds #-}
 module Data.Path.System.Windows
   ( System,
-    pathSeparator,
+    PathSeparator,
     forbiddenCharacters,
   )
 where
