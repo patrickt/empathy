@@ -1,12 +1,17 @@
--- #hide
+{-# LANGUAGE MultiWayIf #-}
+{-# OPTIONS_HADDOCK not-home #-}
+
 {-# LANGUAGE ImportQualifiedPost #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE DerivingStrategies #-}
 {-# LANGUAGE DeriveDataTypeable #-}
 {-# OPTIONS_GHC -Wno-redundant-constraints #-}
+-- | Provides the internal interface for 'Data.Path'. Relying on this module is not recommended.
 module Data.Path.Internal.PathBuf (module Data.Path.Internal.PathBuf) where
 
 import Data.ByteString qualified as B
+import Data.ByteString.Builder qualified as Build
+import Data.ByteString.Lazy qualified as BL
 import Data.ByteString.Char8 qualified as BC
 import Data.ByteString.RawFilePath (RawFilePath)
 import Data.Text.Encoding qualified as E
@@ -23,7 +28,12 @@ import Data.Function (on)
 import Data.List.NonEmpty (NonEmpty)
 import Control.DeepSeq (NFData)
 import Data.List qualified as List
+import Data.Word (Word8)
 
+-- | An opaque blob of bytes representing a potential path to a file or directory.
+--
+-- No guarantees are made that a given 'PathBuf' is syntactically valid.
+-- You should perform validity checks before invoking filesystem operations.
 newtype PathBuf = PathBuf { bytes :: RawFilePath }
   deriving stock (Eq, Ord, Data)
   deriving newtype (NFData, Hashable)
@@ -146,12 +156,27 @@ extension = error "unimplemented"
 setExtension :: PathBuf -> RawFilePath -> PathBuf
 setExtension = error "unimplemented"
 
+hasPrefix :: PathBuf -> Bool
+hasPrefix = error "unimplemented"
+
 -- | @join base new@ creates a new path using @base@ and @new@. If @new@ is
 -- an absolute path, it replaces @base@. Otherwise, it appends @new@ to @base@
 -- with an appropriate directory separator. The behavior given absolute paths may
 -- surprising, but was chosen to match the semantics of Rust's @PathBuf@ type.
 join :: PathBuf -> PathBuf -> PathBuf
-join = error "unimplemented"
+join self path = do
+  if
+    -- An absolute 'path' replaces 'self'.
+    | isAbsolute path || hasPrefix path -> path
+    -- 'path' has a root but no prefix, e.g., `\windows` (Windows only)
+    | hasRoot path -> error "need to implement prefixRemaining on Component"
+    | otherwise -> PathBuf . BL.toStrict . Build.toLazyByteString $ built
+      where
+        built = buildPathBuf self <> Build.word8 platformSeparator <> buildPathBuf path
+        buildPathBuf = coerce Build.byteString
+
+platformSeparator :: Word8
+platformSeparator = 47 -- /
 
 -- IO stuff
 
