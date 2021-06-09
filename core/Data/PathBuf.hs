@@ -5,19 +5,20 @@
 {-# OPTIONS_GHC -Wno-redundant-constraints #-}
 -- | Provides an opaque byte blob representing a path to a file or directory on disk.
 --
--- This type differs from the standard @System.FilePath@ type in several ways:
+-- This type differs from the standard @System.FilePath@ type in several ways, the most
+-- prominent of which is that its internal representation is stored as an opaque blob
+-- of bytes (a 'RawFilePath', a type alias for 'ByteString'). This is necessary because
+-- Windows systems allow filenames to be [ill-formed Unicode](https://simonsapin.github.io/wtf-8/#well-formed).
+-- For more information about when and why this is necessary, consult the
+-- [WTF-8 encoding standard](https://simonsapin.github.io/wtf-8).
 --
--- * It handles paths that are not valid Unicode. Windows systems use UTF-16 internally
---   for file paths, but do not enforce that surrogate code points must be paired.
---   As such, this type's internal representation is a blob of bytes that is parsed and
---   operated upon without being converted into 'Text' or 'String' values, and it enforces
---   checks for this property at type boundaries.
--- * It avoids the conversion overhead associated with marshalling to the FFI.
+-- Even if you don't plan to deploy your code to Windows, this module aims to be an improvement on
+-- @System.FilePath@, most notably insofar as it is more efficient, since its 'RawFilePath' internals
+-- can be passed to native and FFI interfaces in Ο(1) rather than the Ο(n) of 'String'.
 --
 -- This module is a fairly faithful port of Rust's @std::path::PathBuf@ module. Users who
--- want a higher-level API with fancier types can use 'Data.Path', but this module is
--- intended to be a superior replacement for @System.FilePath@ even if fancy types aren't
--- your thing.
+-- want a higher-level API with fancier types can use 'Data.Path'. Users committed to the
+-- @streaming@ and @streaming-bytestring@ ecosystem can pull in the @streaming-paths@ package.
 module Data.PathBuf
   ( PathBuf
   -- * Constructors

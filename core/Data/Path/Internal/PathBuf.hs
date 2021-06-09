@@ -1,3 +1,4 @@
+{-# LANGUAGE BlockArguments #-}
 {-# LANGUAGE MultiWayIf #-}
 {-# OPTIONS_HADDOCK not-home #-}
 
@@ -21,6 +22,9 @@ import Data.Data (Data)
 import Data.Coerce
 import Control.Monad.IO.Class
 import Foreign.C.String qualified as F
+import Foreign.Marshal.Alloc qualified as F
+import Foreign.C.Error qualified as F
+import Control.Monad
 import GHC.Stack (HasCallStack)
 import Data.Hashable (Hashable)
 import Data.Path.Internal.Component
@@ -182,10 +186,17 @@ platformSeparator = 47 -- /
 
 -- | /O(n)/. Returns the canonical, absolute form of a path, resolving symbolic links and
 -- removing intermediate characters. On Unix systems, this calls @realpath(3)@; on Windows,
--- it opens the file and calls @GetFinalPathNameByHandle@. Error codes resulting from the
--- above call will be returned in the 'Left' case.
-canonicalize :: MonadIO m => PathBuf -> m (Either IOError PathBuf)
-canonicalize = error "unimplemented"
+-- it opens the file and calls @GetFinalPathNameByHandle@. If either function encounters an
+-- error code, it will be thrown as an 'IOError'.
+canonicalize :: MonadIO m => PathBuf -> m PathBuf
+canonicalize p = liftIO $
+  F.allocaBytes maxPathSize \ptr -> do
+    void . withCString p $ \cstr ->
+      F.throwErrnoIfNull "realpath" (c_realpath cstr ptr)
+    fromCString ptr
+
+foreign import ccall "realpath"
+  c_realpath :: F.CString -> F.CString -> IO F.CString
 
 exists :: MonadIO m => PathBuf -> m Bool
 exists = error "unimplemented"
@@ -208,10 +219,16 @@ readDirectoryContents = undefined
 
 -- FFI stuff
 
--- | /O(n)/. Convert a 'CString' to a 'PathBuf'. The 'CString' must be null-terminated.
+-- | /O(n)/. Create a 'PathBuf' by copying a 'CString'. The 'CString' must be null-terminated.
 fromCString :: MonadIO m => F.CString -> m PathBuf
 fromCString f = fromBytes <$> liftIO (B.packCString (coerce f))
 
--- | /O(n)/. Copy a 'PathBuf' into a CString and use it in an 'IO' action.
+-- | /O(n)/. Copy a 'PathBuf' into a CString and use it in an 'IO' action. The resulting 'CString'
+-- must not be stored or used after its subcomputation finishes, as it is deallocated automatically.
 withCString :: MonadIO m => PathBuf -> (F.CString -> IO a) -> m a
 withCString b f = liftIO (B.useAsCString (coerce b) f)
+
+-- Internal
+
+maxPathSize :: Int
+maxPathSize = 4096
