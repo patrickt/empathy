@@ -40,7 +40,6 @@ common shared
                      , megaparsec ^>= 7.0.5
                      , symbols ^>= 0.3
                      , text
-                     , rawfilepath ^>= 0.2.4
 
 library empathy-core
   import:              shared
@@ -51,6 +50,7 @@ library empathy-core
                      , Data.Path.Internal.Component
                      , Data.Path.Internal.Last
                      , Data.Path.Internal.PathBuf
+                     , Data.Path.Internal.Raw
   build-depends:       hashable > 1 && < 2
 
 -- library empathy-sig

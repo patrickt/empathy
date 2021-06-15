@@ -14,7 +14,6 @@ import Data.ByteString qualified as B
 import Data.ByteString.Builder qualified as Build
 import Data.ByteString.Lazy qualified as BL
 import Data.ByteString.Char8 qualified as BC
-import Data.ByteString.RawFilePath (RawFilePath)
 import Data.Text.Encoding qualified as E
 import Data.Text.Encoding.Error qualified as E
 import Data.Text (Text)
@@ -33,6 +32,7 @@ import Data.List.NonEmpty (NonEmpty)
 import Control.DeepSeq (NFData)
 import Data.List qualified as List
 import Data.Word (Word8)
+import Data.Path.Internal.Raw (RawFilePath)
 
 -- | An opaque blob of bytes representing a potential path to a file or directory.
 --
