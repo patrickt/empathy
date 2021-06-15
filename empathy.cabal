@@ -40,6 +40,7 @@ common shared
                      , megaparsec ^>= 7.0.5
                      , symbols ^>= 0.3
                      , text
+                     , word8
 
 library empathy-core
   import:              shared
