@@ -84,12 +84,14 @@ library empathy-core
 --     build-depends:     empathy-posix
 --     mixins:            empathy-sig (Data.Path.Generic as Data.Path) requires (Data.Path.System as Data.Path.System.Posix)
 
--- test-suite empathy-test
---   import:              shared
---   type:                exitcode-stdio-1.0
---   hs-source-dirs:      test
---   main-is:             Spec.hs
---   build-depends:       base
---                      , empathy
---                      , tasty ^>= 1.2.3
---                      , tasty-hunit ^>= 0.10.0.2
+test-suite empathy-test
+  import:              shared
+  type:                exitcode-stdio-1.0
+  hs-source-dirs:      test
+  main-is:             Spec.hs
+  other-modules:       Gen
+  build-depends:       base
+                     , empathy-core
+                     , hedgehog == 1.*
+                     , megaparsec
+                     , bytestring
