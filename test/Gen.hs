@@ -12,14 +12,14 @@ import Hedgehog.Range qualified as Range
 prefix :: Gen Prefix
 prefix =
   let path = asciiRawFilePath
-      drive = fromIntegral . ord <$> Gen.upper
+      upper = fromIntegral . ord <$> Gen.upper
    in Gen.choice
         [ Verbatim <$> path,
           VerbatimUNC <$> path <*> path,
-          VerbatimDisk <$> drive,
+          VerbatimDisk <$> upper,
           DeviceNS <$> path,
           UNC <$> path <*> path,
-          Disk <$> drive
+          Disk <$> upper
         ]
 
 asciiRawFilePath :: Gen RawFilePath

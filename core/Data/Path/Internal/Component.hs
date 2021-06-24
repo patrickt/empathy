@@ -18,7 +18,7 @@ import Data.Path.Internal.Raw (RawFilePath)
 import Data.Void (Void)
 import Data.Word8 (Word8, toUpper, _backslash, _colon, _slash)
 import GHC.Generics (Generic)
-import Text.Megaparsec (Parsec, choice, some, takeWhile1P, try)
+import Text.Megaparsec (Parsec, choice, some, takeWhile1P, try, (<?>))
 import Text.Megaparsec.Byte (char, letterChar)
 
 data Prefix
@@ -49,23 +49,24 @@ renderPrefix = \case
   UNC p q -> "\\\\" <> Builder.byteString p <> Builder.char8 '\\' <> Builder.byteString q
   Disk c -> Builder.word8 c <> Builder.char8 ':'
 
+-- This parser normalizes disk prefixes with lowercase letters to upper-case,
+-- as does the Rust implementation.
 parsePrefix :: Parsec Void RawFilePath Prefix
 parsePrefix =
   choice
-    [ -- \\?\UNC\<server>\<share>\
+    [ -- \\?\C:\
+      try (VerbatimDisk <$> ("\\\\?\\" *> drive <* optional verbatimPathSep)) <?> "verbatim disk",
+      -- \\?\UNC\<server>\<share>\
       try (VerbatimUNC <$> ("\\\\?\\UNC\\" *> verbatimPathComponent <* verbatimPathSep)
-            <*> verbatimPathComponent <* optional verbatimPathSep),
-      -- \\?\C:\
-      try (VerbatimDisk <$> ("\\\\?\\" *> drive <* optional verbatimPathSep)),
+            <*> verbatimPathComponent <* optional verbatimPathSep) <?> "verbatim UNC drive",
       -- \\?\<prefix>\
-      Verbatim <$> ("\\\\?\\" *> verbatimPathComponent <* optional verbatimPathSep),
+      Verbatim <$> ("\\\\?\\" *> verbatimPathComponent <* optional verbatimPathSep) <?> "verbatim prefix",
       -- \\.\<device>\
-      DeviceNS <$> ("\\\\.\\" *> pathComponent <* optional pathSep),
+      DeviceNS <$> ("\\\\.\\" *> pathComponent <* optional pathSep) <?> "device namespace",
       -- \\<server>\<share>\
-      UNC <$> ("\\\\" *> pathComponent <* pathSep)
-        <*> pathComponent <* optional pathSep,
+      UNC <$> ("\\\\" *> pathComponent <* pathSep) <*> pathComponent <* optional pathSep <?> "UNC prefix",
       -- C:\
-      Disk . toUpper <$> drive <* optional pathSep
+      Disk . toUpper <$> drive <* optional pathSep <?> "disk"
     ]
   where
     verbatimPathComponent = takeWhile1P Nothing (/= _backslash)
