@@ -8,9 +8,8 @@
 
 module Data.Path.Internal.Component (module Data.Path.Internal.Component) where
 
-import Control.Applicative ((<|>))
+import Control.Applicative ((<|>), optional)
 import Control.DeepSeq (NFData)
-import Control.Monad (void)
 import Data.ByteString.Builder (Builder)
 import Data.ByteString.Builder qualified as Builder
 import Data.Data (Data)
@@ -45,33 +44,33 @@ renderPrefix :: Prefix -> Builder
 renderPrefix = \case
   Verbatim p -> "\\\\?\\" <> Builder.byteString p
   VerbatimUNC p q -> mconcat ["\\\\?\\UNC\\", Builder.byteString p, Builder.char8 '\\', Builder.byteString q]
-  VerbatimDisk c -> "\\\\?\\" <> Builder.word8 c <> ":\\"
-  DeviceNS p -> "\\\\.\\" <> Builder.byteString p
+  VerbatimDisk c -> "\\\\?\\" <> Builder.word8 c <> Builder.char8 ':'
+  DeviceNS p -> "\\\\.\\" <> Builder.byteString p 
   UNC p q -> "\\\\" <> Builder.byteString p <> Builder.char8 '\\' <> Builder.byteString q
-  Disk c -> Builder.word8 c <> ":\\"
+  Disk c -> Builder.word8 c <> Builder.char8 ':'
 
 parsePrefix :: Parsec Void RawFilePath Prefix
 parsePrefix =
   choice
-    [ -- \\?\<prefix>\
-      try (Verbatim <$> ("\\\\?\\" *> verbatimPathComponent)),
-      -- \\?\UNC\<server>\<share\
-      VerbatimUNC <$> ("\\\\?\\UNC\\" *> verbatimPathComponent <* verbatimPathSep)
-        <*> verbatimPathComponent,
+    [ -- \\?\UNC\<server>\<share>\
+      try (VerbatimUNC <$> ("\\\\?\\UNC\\" *> verbatimPathComponent <* verbatimPathSep)
+            <*> verbatimPathComponent <* optional verbatimPathSep),
       -- \\?\C:\
-      VerbatimDisk <$> ("\\\\?\\" *> try drive <* verbatimPathSep),
-      -- \\.\COM42\
-      DeviceNS <$> ("\\\\.\\" *> pathComponent),
+      try (VerbatimDisk <$> ("\\\\?\\" *> drive <* optional verbatimPathSep)),
+      -- \\?\<prefix>\
+      Verbatim <$> ("\\\\?\\" *> verbatimPathComponent <* optional verbatimPathSep),
+      -- \\.\<device>\
+      DeviceNS <$> ("\\\\.\\" *> pathComponent <* optional pathSep),
       -- \\<server>\<share>\
-      UNC <$> ("\\\\" *> pathComponent)
-        <*> pathComponent,
+      UNC <$> ("\\\\" *> pathComponent <* pathSep)
+        <*> pathComponent <* optional pathSep,
       -- C:\
-      Disk . toUpper <$> drive <* some pathSep
+      Disk . toUpper <$> drive <* optional pathSep
     ]
   where
     verbatimPathComponent = takeWhile1P Nothing (/= _backslash)
-    pathComponent = takeWhile1P Nothing isPathSep <* some pathSep
-    isPathSep c = c /= _backslash || c /= _slash
+    pathComponent = takeWhile1P Nothing (not . isPathSep)
+    isPathSep c = c == _backslash || c == _slash
     drive = letterChar <* char _colon
-    pathSep = void (char _backslash <|> char _slash)
-    verbatimPathSep = void $ char _backslash
+    pathSep = some $ char _backslash <|> char _slash
+    verbatimPathSep = char _backslash
