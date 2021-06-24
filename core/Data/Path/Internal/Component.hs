@@ -19,7 +19,7 @@ import Data.Path.Internal.Raw (RawFilePath)
 import Data.Void (Void)
 import Data.Word8 (Word8, toUpper, _backslash, _colon, _slash)
 import GHC.Generics (Generic)
-import Text.Megaparsec (Parsec, choice, some, takeWhile1P, try)
+import Text.Megaparsec (Parsec, choice, some, takeWhile1P, try, (<?>))
 import Text.Megaparsec.Byte (char, letterChar)
 
 data Prefix
@@ -50,28 +50,28 @@ renderPrefix = \case
   UNC p q -> "\\\\" <> Builder.byteString p <> Builder.char8 '\\' <> Builder.byteString q
   Disk c -> Builder.word8 c <> ":\\"
 
+-- This parser normalizes disk prefixes with lowercase letters to upper-case,
+-- as does the Rust implementation.
 parsePrefix :: Parsec Void RawFilePath Prefix
 parsePrefix =
   choice
-    [ -- \\?\<prefix>\
-      try (Verbatim <$> ("\\\\?\\" *> verbatimPathComponent)),
+    [ -- \\?\C:\
+      try (VerbatimDisk <$> ("\\\\?\\" *> drive <* verbatimPathSep)) <?> "verbatim disk",
       -- \\?\UNC\<server>\<share\
-      VerbatimUNC <$> ("\\\\?\\UNC\\" *> verbatimPathComponent <* verbatimPathSep)
-        <*> verbatimPathComponent,
-      -- \\?\C:\
-      VerbatimDisk <$> ("\\\\?\\" *> try drive <* verbatimPathSep),
+      VerbatimUNC <$> ("\\\\?\\UNC\\" *> verbatimPathComponent <* verbatimPathSep) <*> verbatimPathComponent <?> "verbatim UNC drive",
+      -- \\?\<prefix>\
+      Verbatim <$> ("\\\\?\\" *> verbatimPathComponent) <?> "verbatim prefix",
       -- \\.\COM42\
-      DeviceNS <$> ("\\\\.\\" *> pathComponent),
+      DeviceNS <$> ("\\\\.\\" *> verbatimPathComponent) <?> "device namespace",
       -- \\<server>\<share>\
-      UNC <$> ("\\\\" *> pathComponent)
-        <*> pathComponent,
+      UNC <$> ("\\\\" *> pathComponent) <*> verbatimPathComponent <?> "UNC prefix",
       -- C:\
-      Disk . toUpper <$> drive <* some pathSep
+      Disk . toUpper <$> drive <* some pathSep <?> "disk"
     ]
   where
     verbatimPathComponent = takeWhile1P Nothing (/= _backslash)
-    pathComponent = takeWhile1P Nothing isPathSep <* some pathSep
-    isPathSep c = c /= _backslash || c /= _slash
+    pathComponent = takeWhile1P Nothing (not . isPathSep) <* some pathSep
+    isPathSep c = c == _backslash || c == _slash
     drive = letterChar <* char _colon
     pathSep = void (char _backslash <|> char _slash)
     verbatimPathSep = void $ char _backslash

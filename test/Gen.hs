@@ -13,13 +13,14 @@ prefix :: Gen Prefix
 prefix =
   let path = asciiRawFilePath
       letter = fromIntegral . ord <$> Gen.alpha
+      upper = fromIntegral . ord <$> Gen.upper
    in Gen.choice
         [ Verbatim <$> path,
           VerbatimUNC <$> path <*> path,
           VerbatimDisk <$> letter,
           DeviceNS <$> path,
           UNC <$> path <*> path,
-          Disk <$> letter
+          Disk <$> upper
         ]
 
 asciiRawFilePath :: Gen RawFilePath
