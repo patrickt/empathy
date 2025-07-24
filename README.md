@@ -1,3 +1,5 @@
+**You want the new `System.OsPath` library, which does the right thing (using pinned `ShortByteString` values under the hood).
+
 # empathy
 
 [![Build Status](https://action-badges.now.sh/fused-effects/fused-effects)](https://github.com/fused-effects/fused-effects/actions) [![Hackage](https://img.shields.io/hackage/v/empathy.svg)](https://hackage.haskell.org/package/empathy)
