@@ -1,4 +1,4 @@
-**You want the new `System.OsPath` library, which does the right thing (using pinned `ShortByteString` values under the hood).
+**You want the new `System.OsPath` library, which does the right thing (using pinned `ShortByteString` values under the hood).**
 
 # empathy
 
